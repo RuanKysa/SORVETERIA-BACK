@@ -1,4 +1,3 @@
-// routes/userRoutes.js
 const express = require('express');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
@@ -38,6 +37,58 @@ router.post('/login', async (req, res) => {
     res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
   } catch (error) {
     res.status(500).json({ message: 'Erro ao fazer login', error });
+  }
+});
+
+// Listar Usuários
+router.get('/', async (req, res) => {
+  try {
+    const users = await User.find().select('-password'); // Não retorna a senha
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Obter Usuário por ID
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id).select('-password'); // Não retorna a senha
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Atualizar Usuário
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+    res.json({ message: 'Usuário atualizado com sucesso', user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Deletar Usuário
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+    res.json({ message: 'Usuário deletado com sucesso' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 

@@ -1,4 +1,3 @@
-// src/server.js
 const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
@@ -13,11 +12,11 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Rotas de produtos
+// Rotas
 app.use('/api/products', productRoutes);
-
-// Rotas de usuários
 app.use('/api/users', userRoutes);
+app.use('/uploads', express.static('uploads'));
+
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Rota não encontrada' });
