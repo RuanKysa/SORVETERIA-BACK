@@ -44,8 +44,7 @@ const updateProduct = async (req, res) => {
 const getAllProducts = async (req, res) => {
     try {
         const { category } = req.query;
-        const filter = category ? { category } : {}; // Filtra por categoria, se especificada
-
+        const filter = category ? { category } : {}; 
         const products = await Product.find(filter);
         res.json(products);
     } catch (error) {

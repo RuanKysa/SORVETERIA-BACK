@@ -22,10 +22,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Rotas de produto
-router.post('/', upload.single('image'), createProduct); // Adiciona a imagem ao criar um produto
+router.post('/', upload.single('image'), createProduct); 
 router.get('/', getAllProducts);
 router.get('/:id', getProductById);
-router.put('/:id', upload.single('image'), updateProduct); // Atualiza a imagem ao editar um produto
+router.put('/:id', upload.single('image'), updateProduct); 
 router.delete('/:id', deleteProduct);
 
 module.exports = router;

@@ -2,7 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
-const userRoutes = require('./routes/userRoutes'); // Importando as rotas de usuário
+const userRoutes = require('./routes/userRoutes');
 const cors = require('cors');
 
 dotenv.config();
