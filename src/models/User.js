@@ -15,6 +15,28 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  cpf: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  address: {
+    street: { type: String, required: true },
+    number: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    zipCode: { type: String, required: true },
+    complement: { type: String },
+    neighborhood: { type: String, required: true },
+  },
+  phone: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
 });
 
 // Método para criptografar a senha antes de salvar o usuário

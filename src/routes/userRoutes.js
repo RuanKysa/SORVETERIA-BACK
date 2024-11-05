@@ -5,17 +5,25 @@ const router = express.Router();
 
 // Rota para registrar um novo usuário
 router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, cpf, phone, address } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'Usuário já existe' });
     }
+    const user = await User.create({
+      name,
+      email,
+      password,
+      cpf,
+      phone,
+      address,
+    });
 
-    const user = await User.create({ name, email, password });
     res.status(201).json({ message: 'Usuário registrado com sucesso', user });
   } catch (error) {
+    console.error(error); 
     res.status(500).json({ message: 'Erro ao registrar usuário', error });
   }
 });

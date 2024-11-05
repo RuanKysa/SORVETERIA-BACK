@@ -1,21 +1,25 @@
 const Product = require('../models/Product');
 
 const createProduct = async (req, res) => {
-    console.log(req.body, req.file); 
+    console.log(req.body, req.file);
 
     try {
         const image = req.file ? `/uploads/${req.file.filename}` : null;
 
-        const product = new Product({ ...req.body, image });
-        await product.save();
+        // Cria o produto com a categoria fornecida no body
+        const product = new Product({
+            ...req.body,
+            image,
+            category: req.body.category
+        });
 
+        await product.save();
         res.status(201).json(product);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-// Atualizar Produto com imagem
 const updateProduct = async (req, res) => {
     const { id } = req.params;
 
@@ -36,10 +40,13 @@ const updateProduct = async (req, res) => {
     }
 };
 
-// Outras funções inalteradas
+
 const getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find();
+        const { category } = req.query;
+        const filter = category ? { category } : {}; // Filtra por categoria, se especificada
+
+        const products = await Product.find(filter);
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -59,6 +66,7 @@ const getProductById = async (req, res) => {
     }
 };
 
+
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
     try {
@@ -72,10 +80,11 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+
 module.exports = {
     createProduct,
     getAllProducts,
     getProductById,
     updateProduct,
     deleteProduct
-};
+}
