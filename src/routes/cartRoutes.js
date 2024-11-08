@@ -15,7 +15,7 @@ router.post('/add', (req, res) => {
     res.status(200).json({ message: 'Produto adicionado ao carrinho' });
 });
 
-router.get('/', (req, res) => {
+router.get('/visu', (req, res) => {
     res.status(200).json({ cart: req.session.cart || [] });
 });
 

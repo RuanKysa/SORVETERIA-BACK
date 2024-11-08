@@ -2,6 +2,8 @@ const express = require('express');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
+const generateToken = require('../utils/generateToken');
+
 
 // Rota para registrar um novo usuário
 router.post('/register', async (req, res) => {
@@ -38,9 +40,8 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Credenciais inválidas' });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '30d',
-    });
+    // Gera o token usando o ID do usuário
+    const token = generateToken(user._id);
 
     res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
   } catch (error) {

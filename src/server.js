@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 
 const cors = require('cors');
+
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 
@@ -17,13 +18,16 @@ app.use(express.json());
 
 // Configuração da sessão
 app.use(session({
-  secret: 'ruan', // Use um segredo seguro em produção
+  secret: 'ruan', 
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false } // Defina como true se estiver usando HTTPS
+  cookie: { secure: false } 
 }));
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 app.use(cookieParser());
 
 // Rotas

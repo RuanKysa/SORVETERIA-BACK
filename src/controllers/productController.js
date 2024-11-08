@@ -5,8 +5,6 @@ const createProduct = async (req, res) => {
 
     try {
         const image = req.file ? `/uploads/${req.file.filename}` : null;
-
-        // Cria o produto com a categoria fornecida no body
         const product = new Product({
             ...req.body,
             image,
