@@ -1,22 +1,84 @@
 const express = require('express');
+const Cart = require('../models/Cart');
 const router = express.Router();
 
-router.post('/add', (req, res) => {
-    const { productId, quantity } = req.body;
-    if (!req.session.cart) {
-        req.session.cart = [];
+// Adicionar item ao carrinho
+router.post('/add', async (req, res) => {
+  const { userEmail, productId, quantity } = req.body;
+
+  try {
+    let cart = await Cart.findOne({ userEmail });
+
+    if (!cart) {
+      cart = new Cart({ userEmail, items: [] });
     }
-    const existingProduct = req.session.cart.find(item => item.productId === productId);
-    if (existingProduct) {
-        existingProduct.quantity += quantity;
+
+    // Verifica se o item já está no carrinho
+    const existingItemIndex = cart.items.findIndex(item => item.productId.equals(productId));
+    
+    if (existingItemIndex > -1) {
+      // Atualiza a quantidade se o item já existe
+      cart.items[existingItemIndex].quantity += quantity;
     } else {
-        req.session.cart.push({ productId, quantity });
+      // Adiciona novo item
+      cart.items.push({ productId, quantity });
     }
-    res.status(200).json({ message: 'Produto adicionado ao carrinho' });
+
+    await cart.save();
+    res.status(200).json(cart);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
-router.get('/visu', (req, res) => {
-    res.status(200).json({ cart: req.session.cart || [] });
+// Obter carrinho do usuário
+router.get('/:userEmail', async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ userEmail: req.params.userEmail }).populate('items.productId');
+    res.status(200).json(cart || { items: [] });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
+
+// Remover item do carrinho
+router.delete('/remove', async (req, res) => {
+  const { userEmail, productId } = req.body;
+
+  try {
+    const cart = await Cart.findOne({ userEmail });
+
+    if (!cart) return res.status(404).json({ message: 'Carrinho não encontrado' });
+
+    cart.items = cart.items.filter(item => !item.productId.equals(productId));
+    await cart.save();
+    res.status(200).json(cart);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Limpar o carrinho do usuário
+router.delete('/clear', async (req, res) => {
+    const { userEmail } = req.body;
+  
+    try {
+      // Encontre o carrinho do usuário
+      const cart = await Cart.findOne({ userEmail });
+  
+      if (!cart) {
+        return res.status(404).json({ message: 'Carrinho não encontrado' });
+      }
+  
+      // Limpa o carrinho (remove todos os itens)
+      cart.items = [];
+      await cart.save();
+  
+      res.status(200).json({ message: 'Carrinho limpo com sucesso', cart });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
 
 module.exports = router;
