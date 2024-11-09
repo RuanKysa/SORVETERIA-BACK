@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const validator = require('validator'); // Para validação adicional
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -10,15 +11,24 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    validate: {
+      validator: (value) => validator.isEmail(value),
+      message: 'Email inválido',
+    },
   },
   password: {
     type: String,
     required: true,
+    minlength: 6, // Forçando um comprimento mínimo de senha
   },
   cpf: {
     type: String,
     required: true,
     unique: true,
+    validate: {
+      validator: (value) => validator.isLength(value, { min: 11, max: 11 }) && validator.isNumeric(value),
+      message: 'CPF deve ter 11 caracteres numéricos',
+    },
   },
   phone: {
     type: String,
@@ -26,7 +36,7 @@ const userSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
 });
 

@@ -1,24 +1,39 @@
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');  // Importando bcrypt para a criptografia, se necessário
 
 // Criar Usuário
 const createUser = async (req, res) => {
-    console.log(req.body);
+    console.log(req.body); // Usado apenas para depuração
+
+    // Validação simples de entrada
+    const { name, email, password, cpf, phone } = req.body;
+    if (!name || !email || !password || !cpf || !phone) {
+        return res.status(400).json({ message: 'Campos obrigatórios estão ausentes' });
+    }
+
     try {
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ message: 'Usuário já existe' });
+        }
+
         const user = new User(req.body);
         await user.save();
         res.status(201).json({ message: 'Usuário criado com sucesso', userId: user._id });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);  // Para depuração
+        res.status(500).json({ message: 'Erro ao criar usuário', error: error.message });
     }
 };
 
 // Listar Usuários
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find().select('-password'); 
+        const users = await User.find().select('-password');
         res.json(users);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);  // Para depuração
+        res.status(500).json({ message: 'Erro ao listar usuários', error: error.message });
     }
 };
 
@@ -32,7 +47,8 @@ const getUserById = async (req, res) => {
         }
         res.json(user);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);  // Para depuração
+        res.status(500).json({ message: 'Erro ao obter usuário', error: error.message });
     }
 };
 
@@ -40,13 +56,20 @@ const getUserById = async (req, res) => {
 const updateUser = async (req, res) => {
     const { id } = req.params;
     try {
+        // Se a senha for alterada, criptografá-la antes de salvar
+        if (req.body.password) {
+            const salt = await bcrypt.genSalt(10);
+            req.body.password = await bcrypt.hash(req.body.password, salt);
+        }
+
         const user = await User.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
         if (!user) {
             return res.status(404).json({ message: 'Usuário não encontrado' });
         }
         res.json({ message: 'Usuário atualizado com sucesso', user });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);  // Para depuração
+        res.status(500).json({ message: 'Erro ao atualizar usuário', error: error.message });
     }
 };
 
@@ -60,7 +83,8 @@ const deleteUser = async (req, res) => {
         }
         res.json({ message: 'Usuário deletado com sucesso' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);  // Para depuração
+        res.status(500).json({ message: 'Erro ao deletar usuário', error: error.message });
     }
 };
 

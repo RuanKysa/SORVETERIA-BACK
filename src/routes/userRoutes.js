@@ -1,8 +1,10 @@
 const express = require('express');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const router = express.Router();
+const { body, validationResult } = require('express-validator');
 const generateToken = require('../utils/generateToken');
+
+const router = express.Router();
 
 // Middleware para verificar o token JWT
 const authMiddleware = (req, res, next) => {
@@ -22,43 +24,44 @@ const authMiddleware = (req, res, next) => {
 };
 
 // Rota para registrar um novo usuário e fazer login
-router.post('/register', async (req, res) => {
-  const { name, email, password, cpf, phone, address } = req.body;
-
-  try {
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'Usuário já existe' });
+router.post(
+  '/register',
+  [
+    body('email').isEmail().withMessage('Email inválido'),
+    body('password').isLength({ min: 6 }).withMessage('Senha muito curta'),
+    body('name').notEmpty().withMessage('Nome é obrigatório'),
+    body('cpf').notEmpty().withMessage('CPF é obrigatório'),
+    body('phone').notEmpty().withMessage('Telefone é obrigatório'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    // Criação do novo usuário
-    const user = await User.create({
-      name,
-      email,
-      password,
-      cpf,
-      phone,
-    });
+    const { name, email, password, cpf, phone } = req.body;
 
-    // Gera o token para o novo usuário
-    const token = generateToken(user._id);  // Gerar o token
+    try {
+      const userExists = await User.findOne({ email });
+      if (userExists) {
+        return res.status(400).json({ message: 'Usuário já existe' });
+      }
 
-    // Retorna o token no response junto com os dados do usuário
-    res.status(201).json({
-      message: 'Usuário registrado com sucesso',
-      token, // Envia o token gerado para o cliente
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erro ao registrar usuário', error });
+      const user = await User.create({ name, email, password, cpf, phone });
+
+      const token = generateToken(user._id); 
+
+      res.status(201).json({
+        message: 'Usuário registrado com sucesso',
+        token,
+        user: { id: user._id, name: user.name, email: user.email },
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erro ao registrar usuário', error });
+    }
   }
-});
-
+);
 
 // Rota para fazer login
 router.post('/login', async (req, res) => {
@@ -70,7 +73,6 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Credenciais inválidas' });
     }
 
-    // Gera o token usando o ID do usuário
     const token = generateToken(user._id);
 
     res.json({
@@ -85,14 +87,65 @@ router.post('/login', async (req, res) => {
 // Rota para obter os dados do usuário logado
 router.get('/me', authMiddleware, async (req, res) => {
   try {
-    // O ID do usuário vem do token
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
-    res.json({ email: user.email, name: user.name }); // Retornando dados do usuário
+    res.json({ email: user.email, name: user.name });
   } catch (error) {
     res.status(500).json({ message: 'Erro ao obter dados do usuário' });
+  }
+});
+
+// Rota para obter todos os usuários (para o front-end)
+router.get('/users', authMiddleware, async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar usuários' });
+  }
+});
+
+// Rota para editar um usuário (para o front-end)
+router.put('/users/:id', authMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const { name, email, password, cpf, phone } = req.body;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.password = password || user.password;
+    user.cpf = cpf || user.cpf;
+    user.phone = phone || user.phone;
+
+    await user.save();
+
+    res.json({ message: 'Usuário atualizado', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao atualizar usuário' });
+  }
+});
+
+// Rota para deletar um usuário (para o front-end)
+router.delete('/users/:id', authMiddleware, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+
+    await user.remove();
+    res.json({ message: 'Usuário deletado' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao deletar usuário' });
   }
 });
 
