@@ -1,3 +1,4 @@
+// src/routes/cartRoutes.js
 const express = require('express');
 const Cart = require('../models/Cart');
 const router = express.Router();
@@ -15,7 +16,7 @@ router.post('/add', async (req, res) => {
 
     // Verifica se o item já está no carrinho
     const existingItemIndex = cart.items.findIndex(item => item.productId.equals(productId));
-    
+
     if (existingItemIndex > -1) {
       // Atualiza a quantidade se o item já existe
       cart.items[existingItemIndex].quantity += quantity;
@@ -60,25 +61,24 @@ router.delete('/remove', async (req, res) => {
 
 // Limpar o carrinho do usuário
 router.delete('/clear', async (req, res) => {
-    const { userEmail } = req.body;
-  
-    try {
-      // Encontre o carrinho do usuário
-      const cart = await Cart.findOne({ userEmail });
-  
-      if (!cart) {
-        return res.status(404).json({ message: 'Carrinho não encontrado' });
-      }
-  
-      // Limpa o carrinho (remove todos os itens)
-      cart.items = [];
-      await cart.save();
-  
-      res.status(200).json({ message: 'Carrinho limpo com sucesso', cart });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+  const { userEmail } = req.body;
+
+  try {
+    const cart = await Cart.findOne({ userEmail });
+
+    if (!cart) {
+      return res.status(404).json({ message: 'Carrinho não encontrado' });
     }
-  });
-  
+
+    // Limpa o carrinho (remove todos os itens)
+    cart.items = [];
+    await cart.save();
+
+    res.status(200).json({ message: 'Carrinho limpo com sucesso', cart });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 module.exports = router;

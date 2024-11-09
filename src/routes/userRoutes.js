@@ -38,7 +38,6 @@ router.post('/register', async (req, res) => {
       password,
       cpf,
       phone,
-      address,
     });
 
     // Gera o token para o novo usuário
