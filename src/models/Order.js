@@ -4,19 +4,16 @@ const orderSchema = new mongoose.Schema({
     userEmail: { type: String, required: true },
     items: [
         {
-            productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+            productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
             quantity: { type: Number, required: true },
-        },
+            price: { type: Number, required: true }
+        }
     ],
-    address: {
-        street: { type: String, required: true },
-        number: { type: String, required: true },
-        city: { type: String, required: true },
-        state: { type: String, required: true },
-        postalCode: { type: String, required: true },
-    },
-    status: { type: String, default: "pendente" }, // Novo campo para status do pedido
-    createdAt: { type: Date, default: Date.now },
+    address: { type: String, required: true },
+    status: { type: String, default: 'Pendente' },  // Status inicial do pedido
+    createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Order', orderSchema);
+const Order = mongoose.model('Order', orderSchema);
+
+module.exports = Order;

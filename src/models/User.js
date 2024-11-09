@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 6, // Forçando um comprimento mínimo de senha
+    minlength: 6,
   },
   cpf: {
     type: String,
@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: true,
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
   },
   createdAt: {
     type: Date,

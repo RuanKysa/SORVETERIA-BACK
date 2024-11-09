@@ -24,7 +24,7 @@ router.post('/orders', async (req, res) => {
 });
 
 // Rota para obter todos os pedidos de um usuário
-router.get('/:email', async (req, res) => {
+router.get('/orders/user/:email', async (req, res) => {
     const { email } = req.params;
 
     try {
@@ -41,8 +41,8 @@ router.get('/:email', async (req, res) => {
     }
 });
 
-// Rota para obter o status do pedido usando o email
-router.get('/status/:email', async (req, res) => {
+// Rota para obter o status do pedido mais recente usando o email
+router.get('/orders/status/:email', async (req, res) => {
     const { email } = req.params;
 
     try {
@@ -60,7 +60,7 @@ router.get('/status/:email', async (req, res) => {
 });
 
 // Rota para obter um pedido específico por ID
-router.get('/order/:id', async (req, res) => {
+router.get('/orders/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -78,7 +78,7 @@ router.get('/order/:id', async (req, res) => {
 });
 
 // Rota para atualizar o status de um pedido
-router.put('/order/:id', async (req, res) => {
+router.put('/orders/:id', async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
