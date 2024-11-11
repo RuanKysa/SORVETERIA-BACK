@@ -5,16 +5,24 @@ const bcrypt = require('bcryptjs');  // Importando bcrypt para a criptografia, s
 const createUser = async (req, res) => {
     console.log(req.body); // Usado apenas para depuração
 
-    // Validação simples de entrada
     const { name, email, password, cpf, phone } = req.body;
+
+    // Validação simples de entrada
     if (!name || !email || !password || !cpf || !phone) {
         return res.status(400).json({ message: 'Campos obrigatórios estão ausentes' });
     }
 
     try {
+        // Verificar se o email já existe
         const userExists = await User.findOne({ email });
         if (userExists) {
-            return res.status(400).json({ message: 'Usuário já existe' });
+            return res.status(400).json({ message: 'Usuário já existe com esse email' });
+        }
+
+        // Verificar se o CPF já existe
+        const cpfExists = await User.findOne({ cpf });
+        if (cpfExists) {
+            return res.status(400).json({ message: 'Já existe um usuário com esse CPF' });
         }
 
         const user = new User(req.body);
@@ -29,7 +37,7 @@ const createUser = async (req, res) => {
 // Listar Usuários
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find().select('-password');
+        const users = await User.find().select('-password');  // Exclui a senha
         res.json(users);
     } catch (error) {
         console.error(error);  // Para depuração
@@ -40,6 +48,7 @@ const getAllUsers = async (req, res) => {
 // Obter Usuário por ID
 const getUserById = async (req, res) => {
     const { id } = req.params;
+
     try {
         const user = await User.findById(id).select('-password');
         if (!user) {
@@ -55,6 +64,7 @@ const getUserById = async (req, res) => {
 // Atualizar Usuário
 const updateUser = async (req, res) => {
     const { id } = req.params;
+
     try {
         // Se a senha for alterada, criptografá-la antes de salvar
         if (req.body.password) {
@@ -76,6 +86,7 @@ const updateUser = async (req, res) => {
 // Deletar Usuário
 const deleteUser = async (req, res) => {
     const { id } = req.params;
+
     try {
         const user = await User.findByIdAndDelete(id);
         if (!user) {

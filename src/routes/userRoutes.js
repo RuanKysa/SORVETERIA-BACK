@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
 
   if (!token) {
-    return res.status(401).json({ message: 'Acesso não autorizado' });
+    return res.status(401).json({ message: 'Token não fornecido. Acesso não autorizado.' });
   }
 
   try {
@@ -32,14 +32,13 @@ const isAdmin = (req, res, next) => {
 };
 
 // Rota para registrar um novo usuário e fazer login
-router.post(
-  '/register',
+router.post('/register',
   [
     body('email').isEmail().withMessage('Email inválido'),
     body('password').isLength({ min: 6 }).withMessage('Senha muito curta'),
     body('name').notEmpty().withMessage('Nome é obrigatório'),
-    body('cpf').notEmpty().withMessage('CPF é obrigatório'),
-    body('phone').notEmpty().withMessage('Telefone é obrigatório'),
+    body('cpf').notEmpty().withMessage('CPF é obrigatório'), // CPF agora é apenas obrigatório, sem a validação de tamanho
+    body('phone').notEmpty().withMessage('Telefone é obrigatório'), // Telefone agora é apenas obrigatório, sem a validação de tamanho
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -52,12 +51,12 @@ router.post(
     try {
       const userExists = await User.findOne({ email });
       if (userExists) {
-        return res.status(400).json({ message: 'Usuário já existe' });
+        return res.status(400).json({ message: 'Email já está em uso' });
       }
 
       const user = await User.create({ name, email, password, cpf, phone });
 
-      const token = generateToken(user._id); 
+      const token = generateToken(user._id);
 
       res.status(201).json({
         message: 'Usuário registrado com sucesso',
@@ -70,6 +69,7 @@ router.post(
     }
   }
 );
+
 
 // Rota para fazer login
 router.post('/login', async (req, res) => {
@@ -85,6 +85,7 @@ router.post('/login', async (req, res) => {
 
     res.json({
       token,
+      role: user.role, // Adicionando a role ao retorno
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (error) {
