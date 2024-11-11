@@ -65,9 +65,24 @@ const getOrderById = async (req, res) => {
     }
 };
 
+// Exclui um pedido pelo ID
+const deleteOrder = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const order = await Order.findByIdAndDelete(id);
+        if (!order) return res.status(404).json({ message: 'Pedido não encontrado.' });
+
+        res.status(200).json({ message: 'Pedido excluído com sucesso.' });
+    } catch (error) {
+        console.error("Erro ao excluir pedido:", error);
+        res.status(500).json({ message: 'Erro ao excluir o pedido.' });
+    }
+};
+
 module.exports = {
     createOrder,
     updateOrderStatus,
     getAllOrders,
     getOrderById,
+    deleteOrder, // Exporta a função de exclusão de pedido
 };
