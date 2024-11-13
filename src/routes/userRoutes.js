@@ -23,14 +23,6 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-// Middleware para verificar se o usuário é um admin
-const isAdmin = (req, res, next) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Acesso negado. Você não tem permissão.' });
-  }
-  next();
-};
-
 // Rota para registrar um novo usuário e fazer login
 router.post('/register',
   [
@@ -106,8 +98,8 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
-// Rota para obter todos os usuários (somente para admin)
-router.get('/users', authMiddleware, isAdmin, async (req, res) => {
+// Rota para obter todos os usuários
+router.get('/users', async (req, res) => {
   try {
     const users = await User.find().select('-password');
     res.json(users);
@@ -116,8 +108,8 @@ router.get('/users', authMiddleware, isAdmin, async (req, res) => {
   }
 });
 
-// Rota para editar um usuário (somente para admin)
-router.put('/users/:id', authMiddleware, isAdmin, async (req, res) => {
+// Rota para editar um usuário
+router.put('/users/:id', async (req, res) => {
   const { id } = req.params;
   const { name, email, password, cpf, phone } = req.body;
 
@@ -141,8 +133,8 @@ router.put('/users/:id', authMiddleware, isAdmin, async (req, res) => {
   }
 });
 
-// Rota para deletar um usuário (somente para admin)
-router.delete('/users/:id', authMiddleware, isAdmin, async (req, res) => {
+// Rota para deletar um usuário
+router.delete('/users/:id',async (req, res) => {
   const { id } = req.params;
 
   try {

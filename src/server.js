@@ -32,13 +32,15 @@ app.use(cors({
 }));
 app.use(cookieParser());
 
-// Rotas
 app.use('/api/products', productRoutes);
+console.log('Rotas de produtos carregadas');
 app.use('/api/users', userRoutes);
+console.log('Rotas de usuários carregadas');
 app.use('/uploads', express.static('uploads'));
 app.use('/api/cart', cartRoutes);
+console.log('Rotas de carrinho carregadas');
 app.use('/api/orders', orderRoutes);
-
+console.log('Rotas de pedidos carregadas');
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Rota não encontrada' });

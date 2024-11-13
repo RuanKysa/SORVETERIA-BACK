@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');  // Importando bcrypt para a criptografia, se necessário
 
@@ -29,7 +30,7 @@ const createUser = async (req, res) => {
         await user.save();
         res.status(201).json({ message: 'Usuário criado com sucesso', userId: user._id });
     } catch (error) {
-        console.error(error);  // Para depuração
+        console.error('Erro ao criar usuário:', error);  // Para depuração
         res.status(500).json({ message: 'Erro ao criar usuário', error: error.message });
     }
 };
@@ -40,7 +41,7 @@ const getAllUsers = async (req, res) => {
         const users = await User.find().select('-password');  // Exclui a senha
         res.json(users);
     } catch (error) {
-        console.error(error);  // Para depuração
+        console.error('Erro ao listar usuários:', error);  // Para depuração
         res.status(500).json({ message: 'Erro ao listar usuários', error: error.message });
     }
 };
@@ -49,6 +50,11 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
     const { id } = req.params;
 
+    // Verificar se o ID é válido
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'ID inválido' });
+    }
+
     try {
         const user = await User.findById(id).select('-password');
         if (!user) {
@@ -56,7 +62,7 @@ const getUserById = async (req, res) => {
         }
         res.json(user);
     } catch (error) {
-        console.error(error);  // Para depuração
+        console.error('Erro ao obter usuário:', error);  // Para depuração
         res.status(500).json({ message: 'Erro ao obter usuário', error: error.message });
     }
 };
@@ -64,6 +70,11 @@ const getUserById = async (req, res) => {
 // Atualizar Usuário
 const updateUser = async (req, res) => {
     const { id } = req.params;
+
+    // Verificar se o ID é válido
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'ID inválido' });
+    }
 
     try {
         // Se a senha for alterada, criptografá-la antes de salvar
@@ -78,7 +89,7 @@ const updateUser = async (req, res) => {
         }
         res.json({ message: 'Usuário atualizado com sucesso', user });
     } catch (error) {
-        console.error(error);  // Para depuração
+        console.error('Erro ao atualizar usuário:', error);  // Para depuração
         res.status(500).json({ message: 'Erro ao atualizar usuário', error: error.message });
     }
 };
@@ -87,14 +98,23 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
     const { id } = req.params;
 
+    // Verificar se o ID é válido
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'ID inválido' });
+    }
+
+    console.log(`Tentando excluir usuário com ID: ${id}`); // Logando o ID recebido
+
     try {
         const user = await User.findByIdAndDelete(id);
         if (!user) {
+            console.log(`Usuário não encontrado: ${id}`); // Logando erro de não encontrar usuário
             return res.status(404).json({ message: 'Usuário não encontrado' });
         }
+        console.log(`Usuário excluído com sucesso: ${user._id}`); // Logando sucesso na exclusão
         res.json({ message: 'Usuário deletado com sucesso' });
     } catch (error) {
-        console.error(error);  // Para depuração
+        console.error('Erro ao excluir usuário:', error);  // Logando erro para depuração
         res.status(500).json({ message: 'Erro ao deletar usuário', error: error.message });
     }
 };
