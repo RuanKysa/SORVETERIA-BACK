@@ -1,6 +1,5 @@
 const Order = require('../models/Order');
 
-// Cria um novo pedido
 const createOrder = async (req, res) => {
     try {
         const { userEmail, items, address } = req.body;
@@ -24,7 +23,6 @@ const createOrder = async (req, res) => {
     }
 };
 
-// Atualiza o status de um pedido
 const updateOrderStatus = async (req, res) => {
     try {
         const { id } = req.params;
@@ -40,7 +38,6 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-// Obtém todos os pedidos
 const getAllOrders = async (req, res) => {
     try {
         const orders = await Order.find().populate('items.productId', 'name price');
@@ -51,7 +48,6 @@ const getAllOrders = async (req, res) => {
     }
 };
 
-// Obtém um pedido pelo ID
 const getOrderById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -65,7 +61,6 @@ const getOrderById = async (req, res) => {
     }
 };
 
-// Exclui um pedido pelo ID
 const deleteOrder = async (req, res) => {
     try {
         const { id } = req.params;
@@ -84,5 +79,5 @@ module.exports = {
     updateOrderStatus,
     getAllOrders,
     getOrderById,
-    deleteOrder, // Exporta a função de exclusão de pedido
+    deleteOrder, 
 };

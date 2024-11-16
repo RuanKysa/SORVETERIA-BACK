@@ -1,9 +1,8 @@
-// src/routes/cartRoutes.js
 const express = require('express');
 const Cart = require('../models/Cart');
 const router = express.Router();
 
-// Adicionar item ao carrinho
+// Adiciona
 router.post('/add', async (req, res) => {
   const { userEmail, productId, quantity } = req.body;
 
@@ -14,14 +13,11 @@ router.post('/add', async (req, res) => {
       cart = new Cart({ userEmail, items: [] });
     }
 
-    // Verifica se o item já está no carrinho
     const existingItemIndex = cart.items.findIndex(item => item.productId.equals(productId));
 
     if (existingItemIndex > -1) {
-      // Atualiza a quantidade se o item já existe
       cart.items[existingItemIndex].quantity += quantity;
     } else {
-      // Adiciona novo item
       cart.items.push({ productId, quantity });
     }
 
@@ -32,7 +28,6 @@ router.post('/add', async (req, res) => {
   }
 });
 
-// Obter carrinho do usuário
 router.get('/:userEmail', async (req, res) => {
   try {
     const cart = await Cart.findOne({ userEmail: req.params.userEmail }).populate('items.productId');
@@ -42,7 +37,6 @@ router.get('/:userEmail', async (req, res) => {
   }
 });
 
-// Remover item do carrinho
 router.delete('/remove', async (req, res) => {
   const { userEmail, productId } = req.body;
 
@@ -59,7 +53,6 @@ router.delete('/remove', async (req, res) => {
   }
 });
 
-// Limpar o carrinho do usuário
 router.delete('/clear', async (req, res) => {
   const { userEmail } = req.body;
 
@@ -70,7 +63,6 @@ router.delete('/clear', async (req, res) => {
       return res.status(404).json({ message: 'Carrinho não encontrado' });
     }
 
-    // Limpa o carrinho (remove todos os itens)
     cart.items = [];
     await cart.save();
 

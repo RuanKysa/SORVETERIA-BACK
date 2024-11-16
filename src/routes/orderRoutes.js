@@ -9,7 +9,6 @@ const {
 
 const router = express.Router();
 
-// Rotas
 router.post('/', createOrder);
 router.put('/:id', updateOrderStatus);
 router.get('/', getAllOrders);

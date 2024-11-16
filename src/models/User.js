@@ -3,71 +3,47 @@ const bcrypt = require('bcryptjs');
 const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
+  name: { type: String, required: true, },
   email: {
-    type: String,
-    required: true,
-    unique: true,
+    type: String, required: true, unique: true,
     validate: {
       validator: (value) => validator.isEmail(value),
       message: 'Email inválido',
     },
   },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6,
-  },
+  password: { type: String, required: true, minlength: 6, },
   cpf: {
-    type: String,
-    required: true,
-    unique: true,
+    type: String, required: true, unique: true,
     validate: {
       validator: (value) => {
-        // Verifica se o CPF tem 11 dígitos numéricos
-        const cleanCpf = value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+        const cleanCpf = value.replace(/\D/g, '');
         return validator.isLength(cleanCpf, { min: 11, max: 11 }) && validator.isNumeric(cleanCpf);
       },
       message: 'CPF deve ter 11 caracteres numéricos',
     },
   },
   phone: {
-    type: String,
-    required: true,
-    validate: {
+    type: String, required: true, validate: {
       validator: (value) => {
-        // Verifica se o telefone tem 10 ou 11 caracteres numéricos
-        const cleanPhone = value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+        const cleanPhone = value.replace(/\D/g, '');
         return (cleanPhone.length === 10 || cleanPhone.length === 11) && validator.isNumeric(cleanPhone);
       },
       message: 'Telefone deve ter 10 ou 11 caracteres numéricos',
     },
   },
-  role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user',
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+  role: { type: String, enum: ['user', 'admin'], default: 'user', },
+  createdAt: { type: Date, default: Date.now, },
 });
 
-// Middleware para remover formatação do CPF e telefone e criptografar a senha antes de salvar o usuário
 userSchema.pre('save', async function (next) {
-  // Remove formatação de CPF e telefone
   if (this.cpf) {
-    this.cpf = this.cpf.replace(/\D/g, ''); // Remove todos os caracteres não numéricos (pontos, hífen, etc.)
+    this.cpf = this.cpf.replace(/\D/g, '');
   }
   if (this.phone) {
-    this.phone = this.phone.replace(/\D/g, ''); // Remove todos os caracteres não numéricos (parênteses, espaços, hífen)
+    this.phone = this.phone.replace(/\D/g, '');
   }
 
-  // Criptografa a senha antes de salvar
+
   if (this.isModified('password')) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -75,8 +51,6 @@ userSchema.pre('save', async function (next) {
 
   next();
 });
-
-// Método para comparar a senha durante o login
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

@@ -6,7 +6,6 @@ const generateToken = require('../utils/generateToken');
 
 const router = express.Router();
 
-// Middleware para verificar o token JWT
 const authMiddleware = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
 
@@ -16,21 +15,20 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // O ID do usuário estará aqui
+    req.user = decoded; 
     next();
   } catch (err) {
     return res.status(400).json({ message: 'Token inválido' });
   }
 };
 
-// Rota para registrar um novo usuário e fazer login
 router.post('/register',
   [
     body('email').isEmail().withMessage('Email inválido'),
     body('password').isLength({ min: 6 }).withMessage('Senha muito curta'),
     body('name').notEmpty().withMessage('Nome é obrigatório'),
-    body('cpf').notEmpty().withMessage('CPF é obrigatório'), // CPF agora é apenas obrigatório, sem a validação de tamanho
-    body('phone').notEmpty().withMessage('Telefone é obrigatório'), // Telefone agora é apenas obrigatório, sem a validação de tamanho
+    body('cpf').notEmpty().withMessage('CPF é obrigatório'), 
+    body('phone').notEmpty().withMessage('Telefone é obrigatório'), 
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -61,9 +59,6 @@ router.post('/register',
     }
   }
 );
-
-
-// Rota para fazer login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -77,7 +72,7 @@ router.post('/login', async (req, res) => {
 
     res.json({
       token,
-      role: user.role, // Adicionando a role ao retorno
+      role: user.role, 
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (error) {
@@ -85,7 +80,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Rota para obter os dados do usuário logado
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -98,7 +92,6 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
-// Rota para obter todos os usuários
 router.get('/users', async (req, res) => {
   try {
     const users = await User.find().select('-password');
@@ -108,7 +101,6 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// Rota para editar um usuário
 router.put('/users/:id', async (req, res) => {
   const { id } = req.params;
   const { name, email, password, cpf, phone } = req.body;
@@ -132,8 +124,6 @@ router.put('/users/:id', async (req, res) => {
     res.status(500).json({ message: 'Erro ao atualizar usuário' });
   }
 });
-
-// Rota para deletar um usuário
 router.delete('/users/:id',async (req, res) => {
   const { id } = req.params;
 
