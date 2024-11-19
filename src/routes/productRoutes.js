@@ -1,16 +1,11 @@
 const express = require('express');
 const multer = require('multer');
 const {
-    createProduct,
-    getAllProducts,
-    getProductById,
-    updateProduct,
-    deleteProduct
+    createProduct, getAllProducts, getProductById, updateProduct, deleteProduct
 } = require('../controllers/productController');
 
 const router = express.Router();
 
-// Configuração do multer para salvar imagens na pasta 'uploads'
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/');
@@ -22,10 +17,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
-router.post('/', upload.single('image'), createProduct); 
+router.post('/', upload.single('image'), createProduct);
 router.get('/', getAllProducts);
 router.get('/:id', getProductById);
-router.put('/:id', upload.single('image'), updateProduct); 
+router.put('/:id', upload.single('image'), updateProduct);
 router.delete('/:id', deleteProduct);
 
 module.exports = router;

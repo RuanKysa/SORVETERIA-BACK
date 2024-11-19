@@ -38,11 +38,10 @@ const updateProduct = async (req, res) => {
     }
 };
 
-
 const getAllProducts = async (req, res) => {
     try {
         const { category } = req.query;
-        const filter = category ? { category } : {}; 
+        const filter = category ? { category } : {};
         const products = await Product.find(filter);
         res.json(products);
     } catch (error) {
@@ -63,7 +62,6 @@ const getProductById = async (req, res) => {
     }
 };
 
-
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
     try {
@@ -77,11 +75,6 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-
 module.exports = {
-    createProduct,
-    getAllProducts,
-    getProductById,
-    updateProduct,
-    deleteProduct
+    createProduct, getAllProducts, getProductById, updateProduct, deleteProduct
 }

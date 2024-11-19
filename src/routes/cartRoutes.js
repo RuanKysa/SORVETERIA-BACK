@@ -1,8 +1,6 @@
 const express = require('express');
 const Cart = require('../models/Cart');
 const router = express.Router();
-
-// Adiciona
 router.post('/add', async (req, res) => {
   const { userEmail, productId, quantity } = req.body;
 
