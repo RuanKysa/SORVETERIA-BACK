@@ -9,6 +9,6 @@ router.put('/:id', updateOrderStatus);
 router.get('/', getAllOrders);
 router.get('/:id', getOrderById);
 router.delete('/:id', deleteOrder);
-router.get('/user/:userEmail', getOrdersByUser);
+
 
 module.exports = router;

@@ -71,28 +71,6 @@ const deleteOrder = async (req, res) => {
     }
 };
 
-const getOrdersByUser = async (req, res) => {
-    try {
-        const { userEmail } = req.params;
-
-        // Validação para garantir que o email foi fornecido
-        if (!userEmail) {
-            return res.status(400).json({ message: 'O email do usuário é obrigatório.' });
-        }
-
-        // Busca pedidos pelo email do usuário
-        const userOrders = await Order.find({ userEmail }).populate('items.productId', 'name price');
-
-        if (userOrders.length === 0) {
-            return res.status(404).json({ message: 'Nenhum pedido encontrado para este usuário.' });
-        }
-
-        res.status(200).json(userOrders);
-    } catch (error) {
-        console.error("Erro ao buscar pedidos do usuário:", error);
-        res.status(500).json({ message: 'Erro ao buscar pedidos do usuário.' });
-    }
-};
 module.exports = {
-    createOrder, updateOrderStatus, getAllOrders, getOrderById, deleteOrder, getOrdersByUser,
+    createOrder, updateOrderStatus, getAllOrders, getOrderById, deleteOrder, 
 };

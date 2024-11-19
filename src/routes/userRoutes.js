@@ -15,7 +15,7 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; 
+    req.user = decoded;
     next();
   } catch (err) {
     return res.status(400).json({ message: 'Token inválido' });
@@ -27,8 +27,8 @@ router.post('/register',
     body('email').isEmail().withMessage('Email inválido'),
     body('password').isLength({ min: 6 }).withMessage('Senha muito curta'),
     body('name').notEmpty().withMessage('Nome é obrigatório'),
-    body('cpf').notEmpty().withMessage('CPF é obrigatório'), 
-    body('phone').notEmpty().withMessage('Telefone é obrigatório'), 
+    body('cpf').notEmpty().withMessage('CPF é obrigatório'),
+    body('phone').notEmpty().withMessage('Telefone é obrigatório'),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
 
     res.json({
       token,
-      role: user.role, 
+      role: user.role,
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (error) {
@@ -83,14 +83,19 @@ router.post('/login', async (req, res) => {
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
+
     if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
-    res.json({ email: user.email, name: user.name });
+    res.json({
+      email: user.email, name: user.name, role: user.role,
+    });
   } catch (error) {
+    console.error("Erro ao obter dados do usuário:", error);
     res.status(500).json({ message: 'Erro ao obter dados do usuário' });
   }
 });
+
 
 router.get('/users', async (req, res) => {
   try {
@@ -124,7 +129,7 @@ router.put('/users/:id', async (req, res) => {
     res.status(500).json({ message: 'Erro ao atualizar usuário' });
   }
 });
-router.delete('/users/:id',async (req, res) => {
+router.delete('/users/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
